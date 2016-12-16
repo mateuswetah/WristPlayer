@@ -1,15 +1,18 @@
 buildscript {
     repositories {
+        jcenter()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.2'
+        classpath 'com.android.tools.build:gradle:2.2.2'
     }
 }
 
-repositories {
-    jcenter()
-    mavenLocal()
+allprojects {
+    repositories {
+        jcenter()
+        mavenLocal()
+    }
 }
 
 apply plugin: 'com.android.application'
@@ -19,7 +22,7 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
-        minSdkVersion 10
+        minSdkVersion 18
         targetSdkVersion 23
         applicationId="com.google.sample.cast.refplayer"
     }
@@ -43,4 +46,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:23.4.0'
     compile 'com.google.android.gms:play-services-cast-framework:9.4.0'
     compile 'com.googlecode.android-query:android-query:0.25.9'
+    compile 'com.google.android.gms:play-services-wearable:9.4.0'
+    compile 'com.google.code.gson:gson:2.6.2'
+   // compile 'watch.nudge.phonegesturelibrary:phone-gest-lib:0.8.4'
 }

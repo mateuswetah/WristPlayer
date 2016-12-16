@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+tools:context=".MainActivity"
+tools:deviceIds="wear"
+android:background="#222" android:padding="10dp">
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="15dp"
+        android:layout_weight="1">
+
+        <ImageButton
+            android:src="@drawable/ic_volume_down_black_24dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/volumeDownButton"
+            android:layout_weight="1"
+            android:background="@android:color/transparent" />
+
+        <ImageButton
+            android:src="@drawable/ic_volume_up_black_24dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/volumeUpButton"
+            android:layout_weight="1"
+            android:background="@android:color/transparent" />
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp">
+
+        <ImageButton
+            android:src="@drawable/ic_skip_previous_black_24dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/prevButton"
+            android:layout_weight="1"
+            android:background="@android:color/transparent" />
+
+        <ImageButton
+            android:src="@drawable/ic_play_arrow_black_24dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/playPauseButton"
+            android:layout_column="1"
+            android:background="@android:color/transparent"
+            android:layout_weight="1"
+            android:adjustViewBounds="false" />
+
+        <ImageButton
+            android:src="@drawable/ic_skip_next_black_24dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/nextButton"
+            android:layout_weight="1"
+            android:background="@android:color/transparent" />
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:paddingBottom="10dp">
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:text="Gravar"
+            android:id="@+id/ButtonRecord"
+            android:textOn="Gravando Movimento.."
+            android:textOff="Gravar Movimento"
+            android:textSize="10sp"
+            android:minHeight="@dimen/close_button_diameter"
+            android:checked="false"
+            android:textAlignment="center"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:layout_height="60dp" />
+    </TableRow>
+</TableLayout>
+
+
+
+
+

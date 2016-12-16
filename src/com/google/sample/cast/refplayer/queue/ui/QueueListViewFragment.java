@@ -105,6 +105,7 @@ public class QueueListViewFragment extends Fragment
     }
 
     private void onPlayPauseClicked(View view) {
+        Log.d("LOOOG", "AQUIIIII");
         RemoteMediaClient remoteMediaClient = getRemoteMediaClient();
         if (remoteMediaClient != null) {
             remoteMediaClient.togglePlayback();

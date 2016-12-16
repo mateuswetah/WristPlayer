@@ -260,6 +260,8 @@ public class LocalPlayerActivity extends AppCompatActivity {
 
     private void play(int position) {
         startControllersTimer();
+
+
         switch (mLocation) {
             case LOCAL:
                 mVideoView.seekTo(position);
@@ -604,9 +606,10 @@ public class LocalPlayerActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                if (mLocation == PlaybackLocation.LOCAL) {
+                Log.d("LOG", "MEEEEEEE");
+              if (mLocation == PlaybackLocation.LOCAL) {
                     togglePlayback();
-                }
+              }
             }
         });
     }

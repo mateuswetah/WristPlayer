@@ -86,6 +86,7 @@ public class QueueDataProvider {
     }
 
     public void onUpcomingPlayClicked(View view, MediaQueueItem upcomingItem) {
+
         RemoteMediaClient remoteMediaClient = getRemoteMediaClient();
         if (remoteMediaClient == null) {
             return;
