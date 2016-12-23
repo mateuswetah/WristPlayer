@@ -25,5 +25,4 @@ dependencies {
     compile 'com.google.android.support:wearable:2.0.0-alpha3'
     compile 'com.google.android.gms:play-services-wearable:9.4.0'
     compile 'com.google.android.gms:play-services-appindexing:9.4.0'
-    compile 'watch.nudge.gesturelibrary:gesturelibrary:0.8.10'
 }

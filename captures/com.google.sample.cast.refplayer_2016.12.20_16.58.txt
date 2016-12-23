@@ -1,0 +1,9 @@
+TASK com.google.sample.cast.refplayer id=494
+  ACTIVITY com.google.sample.cast.refplayer/com.example.mateus.testcastmdtw.MainActivity d95fccc pid=28288
+    Activity: com.example.mateus.testcastmdtw.MainActivity@99f2ad9 99f2ad9
+    Callback: android.support.wearable.activity.WearableActivity$AmbientCallback@2669358
+    State: RESUMED bound: true attached: com.google.android.wearable.ambient.activity.IAmbientActivityService$Stub$Proxy@4a1bcb1
+    Ambient: true
+    enterAmbient: 1482260277787 1482260277788 1ms
+    updateAmbient: 1482260280005 1482260280007 2ms
+    exitAmbient: 1482260247852 1482260247856 4ms

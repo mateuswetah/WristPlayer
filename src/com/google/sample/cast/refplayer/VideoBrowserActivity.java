@@ -301,7 +301,7 @@ public class VideoBrowserActivity extends AppCompatActivity implements GoogleApi
 
     }
 
-    /* LOADS MOVEMENTS, PROCESS AND DELEGATE ACTIONS------------------------------------------
+    /* LOADS MOVEMENTS, PROCESS AND DELEGATE ACTIONS------------------------------------------------
         This method holds the call to MDDTW and the result delegation
     */
     public static void compareMovements() {
@@ -316,21 +316,21 @@ public class VideoBrowserActivity extends AppCompatActivity implements GoogleApi
         // 1. JSON to Java object, read it from a file.
         try {
             // Load Template files
+            sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/new_up.json"), SensorData.class));
+            sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/new_down.json"), SensorData.class));
+            sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/new_left.json"), SensorData.class));
+            sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/new_right.json"), SensorData.class));
+            sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/new_push.json"), SensorData.class));
+            sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/new_pull.json"), SensorData.class));
+
+            /* LINEAR_ACCELERATION
             sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/template1.json"), SensorData.class));
             sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/template2.json"), SensorData.class));
             sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/template3.json"), SensorData.class));
             sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/template4.json"), SensorData.class));
             sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/template5.json"), SensorData.class));
             sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/template6.json"), SensorData.class));
-            /*
-            sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/Temp1.json"), SensorData.class));
-            sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/Temp2.json"), SensorData.class));
-            sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/Temp3.json"), SensorData.class));
-            sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/Temp4.json"), SensorData.class));
-            sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/Temp5.json"), SensorData.class));
-            sensorDataTemplates.add(gson.fromJson(new FileReader("/sdcard/Download/Temp6.json"), SensorData.class));
-*/
-
+            */
             // Load current movement file
             sensorData = gson.fromJson(new FileReader("/sdcard/Download/moviment.json"), SensorData.class);
 

@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
@@ -25,14 +27,12 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <service
-            android:name=".SensorsService"
-            android:exported="false" />
-
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
+            android:keepScreenOn="true"
             android:launchMode="singleInstance">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -40,21 +40,7 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name="watch.nudge.gesturelibrary.SensorService"
-            android:enabled="true"
-            android:exported="true"
-            android:process="com.nudge.gestureservice">
-            <meta-data
-                android:name="watch.nudge.gesturelib.version"
-                android:value="@integer/watch_nudge_gesturelibrary_version" />
-
-            <intent-filter>
-                <action android:name="watch.nudge.gesturelibrary.GestureService"></action>
-            </intent-filter>
-        </service>
-
-<!--
+        <!--
         <service android:name=".MainActivity$MovementConfirmationFromMobile"
             android:enabled="true"
             android:exported="true">
@@ -62,11 +48,7 @@
                 <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
             </intent-filter>
         </service>
--->
-
-        <meta-data
-            android:name="watch.nudge.gesturelib.appid"
-            android:value="187811" />
+        -->
 
         <service
             android:name=".WearLauncherFromMobileService"
