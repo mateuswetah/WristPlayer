@@ -147,6 +147,7 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
 
         // Initialize the trigger data arrays
         allGestureAccel = new ArrayList<>();
+        allTriggerAccel = new ArrayList<>();
         //allTemplateGyro = new ArrayList<>();
 
         // Sensors Listeners
