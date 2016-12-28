@@ -62,17 +62,11 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
     private SensorEventListener AccelListener, GyroListener;
 
     // Sensor trigger data
-    private List<float[]> allTriggerGyro, allGestureGyro, allTemplateGyro;
-    private List<float[]> allTriggerAccel, allGestureAccel, allTemplateAccel;
-    private SensorTriggerData sensorDataTemplate;
-    private SensorTriggerData sensorTriggerData;
+    private List<float[]> allTriggerGyro, allGestureGyro;
+    private List<float[]> allTriggerAccel, allGestureAccel;
 
     // JSON parsing
     JSONObject jsonObject;
-
-    // Timer used for trigger detection
-    Timer timer;
-    TimerTask timerTask;
 
     // Visual Components
     private ImageButton playPauseButton, volumeDownButton, volumeUpButton, nextButton, prevButton;
@@ -81,7 +75,12 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
 
     // Flags to control with template to record
     private boolean templateRecording = false;
-    private boolean triggerTemplateRecording = false;
+
+    // Tilt detection
+    private boolean tiltBegin = false;
+    private boolean tiltPeek = false;
+    private long startTime = 0;
+    private Double refXAngle = 0.0;
 
     // Related to Sending the Message
     private static final String WEARABLE_MAIN = "WearableMain";
@@ -113,7 +112,7 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
         Log.d("ACCESS_INTERNET", "" + (permissionCheck3 == PackageManager.PERMISSION_GRANTED));
 
         // Extra permissions needed for reading template movement files
-        Utils.verifyStoragePermissions(this);
+        //Utils.verifyStoragePermissions(this);
 
         // Acquires wake lock, as the sensor data collecting should not stop.
         //acquireWakeLock();
@@ -147,44 +146,8 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
         jsonObject = new JSONObject();
 
         // Initialize the trigger data arrays
-        allTriggerAccel = new ArrayList<>();
         allGestureAccel = new ArrayList<>();
-        allTemplateAccel = new ArrayList<>();
-        //allTriggerGyro = new ArrayList<>();
         //allTemplateGyro = new ArrayList<>();
-        sensorDataTemplate = new SensorTriggerData(readFromLocalTemplate());
-        Utils.lowPassFilter(sensorDataTemplate);
-        sensorTriggerData = new SensorTriggerData();
-
-        // Setting timer for continuously comparing movements, every 500secs
-        timer = new Timer();
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-
-                if(!templateRecording && !triggerTemplateRecording && !buttonRecord.isChecked()) {
-
-                    //int i = allTriggerAccel.size();
-                    //sensorTriggerData.updateData(allTriggerAccel, i);
-                    sensorTriggerData = new SensorTriggerData(allTriggerAccel);
-                    allTriggerAccel.clear(); // Clear array for next comparison.
-
-                    if (sensorTriggerData == null || sensorTriggerData.getDataSize() == 0) {
-                        Log.d("ACTIVITY", "NO RECENTLY RECORDED DATA");
-                    } else if (sensorTriggerData.getDataSize() < 45) {
-                        Log.d("ACTIVITY", "NO ENOUGH DATA");
-                    } else if (sensorDataTemplate == null || sensorDataTemplate.getDataSize() == 0) {
-                        Log.d("ACTIVITY", "NO TEMPLATE RECORDED");
-                    } else {
-                        if (checkIfIdleState(sensorTriggerData) == true)
-                            Log.d("ACTIVITY", "IDLE STATE ON TRIGGER DETECTION");
-                        else
-                            compareTriggerMovement();
-                    }
-                }
-            }
-        };
-        timer.scheduleAtFixedRate(timerTask, new Date(), 510);
 
         // Sensors Listeners
         AccelListener = new SensorEventListener() {
@@ -202,13 +165,6 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
                     allGestureAccel.add(oneGestureAccel);
 
                 // or save data for trigger templates
-                } else if (triggerTemplateRecording) {
-                    float[] oneTemplateAccel = new float[3];
-                    oneTemplateAccel[0] = event.values[0];
-                    oneTemplateAccel[1] = event.values[1];
-                    oneTemplateAccel[2] = event.values[2];
-
-                    allTemplateAccel.add(oneTemplateAccel);
                 } else {
 
                     // Continuous trigger data collecion
@@ -217,6 +173,7 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
                     oneAccel[1] = event.values[1];
                     oneAccel[2] = event.values[2];
 
+                    checkTiltAngle(oneAccel);
                     allTriggerAccel.add(oneAccel);
                 }
 
@@ -272,7 +229,7 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
                                 jsonObject.put("Accel", jsonAllAccel);
                                 //jsonObject.put("Gyro", jsonAllGyro);
 
-                                sendMessage(jsonObject.toString(2));
+                                //sendMessage(jsonObject.toString(2));
 
                                 // Reset the JSON objects
                                 jsonObject = new JSONObject();
@@ -293,43 +250,6 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
-        });
-
-        buttonRecord.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-
-                triggerTemplateRecording = true;
-                buttonRecord.setChecked(true);
-
-                allTemplateAccel.clear();
-
-                try {
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            writeOnLocalTemplate();
-
-                            triggerTemplateRecording = false;
-                            buttonRecord.setChecked(false);
-
-
-                            Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-
-                            long[] vibrationPattern = {0,200,0,200};
-                            final int indexInPatternToRepeat = -1; // Don't repeat
-                            vibrator.vibrate(vibrationPattern, indexInPatternToRepeat);
-
-                        }
-                    }, 500);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-
-                return true;
             }
         });
 
@@ -400,17 +320,6 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
         });
     }
 
-
-    // Checks the standard deviation of the movement to see if the wrist is or not idle
-    private boolean checkIfIdleState(SensorTriggerData sensorTriggerData) {
-
-        Double[] stdDeviations = Utils.getStandardDeviation(sensorTriggerData);
-
-        if (stdDeviations[0] < 0.1 && stdDeviations[1] < 0.1 && stdDeviations[2] < 0.1)
-            return true;
-        else
-            return false;
-    }
     // Checks the standard deviation of the movement to see if the wrist is or not idle
     private boolean checkIfIdleState(List<float[]> sensorGestureData) {
 
@@ -424,111 +333,74 @@ public class MainActivity extends WearableActivity implements GoogleApiClient.Co
             return false;
     }
 
+    private void checkTiltAngle(float[] sensorTriggerData) {
 
-    //--------------------------------------------------------------------------------
-    // TRIGGER DETECTION METHODS --------------------------------------------------------
+        long now = System.currentTimeMillis();
+        Double lastX, lastY, lastZ;
+        Double angleX, angleY, angleZ;
 
-    public void writeOnLocalTemplate() {
+        lastX = Double.valueOf(sensorTriggerData[0]);
+        lastY = Double.valueOf(sensorTriggerData[1]);
+        lastZ = Double.valueOf(sensorTriggerData[2]);
 
-        FileOutputStream outStream = null;
-        Log.d("ACTIVITY", "WRITE");
-        try {
-            outStream = new FileOutputStream(Environment.getExternalStorageDirectory()  + "/wrist_template.dat");
-            ObjectOutputStream objectOutStream = new ObjectOutputStream(outStream);
-            objectOutStream.writeInt(allTemplateAccel.size()); // Save size first
+        Double measuredGp = Math.sqrt(Math.pow(lastX,2) + Math.pow(lastY,2) + Math.pow(lastZ,2));
 
-            for(int i  = 0; i < allTemplateAccel.size(); i++) {
-                objectOutStream.writeObject(allTemplateAccel.get(i));
-            }
+        angleX = Math.toDegrees(Math.acos(lastX/measuredGp));
+        angleY = Math.toDegrees(Math.acos(lastY/measuredGp));
+        angleZ = Math.toDegrees(Math.acos(lastZ/measuredGp));
 
-            objectOutStream.close();
+        //Log.d("ANGLES", "X=" + angleX + "\tY=" + angleY + "\tZ=" + angleZ);
 
-            // Passes the new template data from file to object
-            sensorDataTemplate = new SensorTriggerData(readFromLocalTemplate());
-            Utils.lowPassFilter(sensorDataTemplate);
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (angleY > 100 && angleZ > 10 && !tiltBegin) {
+            tiltBegin = true;
+            startTime = System.currentTimeMillis();
+            refXAngle = angleX;
         }
 
-    }
+        if (angleY > 170 && angleZ > 80) {
+            tiltPeek = true;
 
-    public List<float[]> readFromLocalTemplate() {
+            if (Math.abs(refXAngle - angleX) > 25) {
+                tiltPeek = false;
+                tiltBegin = false;
+                startTime = 0;
 
-        FileInputStream inStream = null;
-
-        try {
-            inStream = new FileInputStream(Environment.getExternalStorageDirectory() + "/wrist_template.dat");
-
-            ObjectInputStream objectInStream = new ObjectInputStream(inStream);
-            int count = objectInStream.readInt(); // Get the number of data
-            List<float[]> sensorDataRaw = new ArrayList<>();
-
-            for (int i=0; i < count; i++)
-                sensorDataRaw.add((float[]) objectInStream.readObject());
-
-            objectInStream.close();
-
-            return sensorDataRaw;
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    void compareTriggerMovement() {
-
-        Utils.lowPassFilter(sensorTriggerData);
-        // Log.d("SENSOR_X", sensorData.getXData().toString());
-        // Log.d("SENSOR_Y", sensorData.getYData().toString());
-        // Log.d("SENSOR_Z", sensorData.getZData().toString());
-
-        double smallestDist = 90.00;
-        int smallestIndex = 6;
-
-        //for (int i = 0; i < sensorDataTemplates.size(); i++) {
-        if (sensorDataTemplate.getDataSize() == 0) {
-            Log.d("ACTIVITY", "FAILED TO LOAD " + 0 + "TH TEMPLATE FILE");
-        } else {
-            double dist = new MDDTW(sensorDataTemplate, sensorTriggerData).getDistancia();
-            Log.d("DISTANCIA", "" + dist);
-
-            if (dist < smallestDist) {
-                smallestDist = dist;
-                smallestIndex = 1;
+                Log.d("ANGLE", "X AXIS CHANGED! DIFF: " + Math.abs(refXAngle - angleX)  );
             }
         }
-        //}
 
-        if (smallestIndex == 1) {
-            Log.d("TRIGGER", "TWISTED!");
 
-            try {
-                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
+        if (angleY < 100 && angleZ < 10) {
+            if (tiltBegin && tiltPeek) {
+                Log.d("ANGLE", "TWISTED");
 
-                        Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+                try {
+                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
 
-                        long[] vibrationPattern = {0,200,0,0};
-                        final int indexInPatternToRepeat = -1; // Don't repeat
-                        vibrator.vibrate(vibrationPattern, indexInPatternToRepeat);
+                            Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 
-                        buttonRecord.callOnClick();
-                    }
-                }, 500);
-            } catch (Exception e) {
-                e.printStackTrace();
+                            long[] vibrationPattern = {0,200,0,0};
+                            final int indexInPatternToRepeat = -1; // Don't repeat
+                            vibrator.vibrate(vibrationPattern, indexInPatternToRepeat);
+
+                            buttonRecord.callOnClick();
+                        }
+                    }, 100);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
+            tiltPeek = false;
+            tiltBegin = false;
+        }
+
+        if (now - startTime > 1500) {
+            tiltPeek = false;
+            tiltBegin = false;
+            startTime = 0;
         }
 
     }

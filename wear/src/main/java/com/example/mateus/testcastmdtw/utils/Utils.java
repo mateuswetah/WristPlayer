@@ -80,46 +80,6 @@ public class Utils {
         return stdDeviations;
     }
 
-    // Obtain separately the standard deviation of the axis X,Y and Z in a SensorTriggerData
-    public static Double[] getStandardDeviation(SensorTriggerData sensorTriggerData){
-
-        Double meanX = 0.0;
-        Double meanY = 0.0;
-        Double meanZ = 0.0;
-
-        int sensorDataSize = sensorTriggerData.getDataSize();
-
-        Double diffMeanX = 0.0;
-        Double diffMeanY = 0.0;
-        Double diffMeanZ = 0.0;
-
-        Double[] stdDeviations = new Double[3];
-
-        for (int i = 0; i < sensorDataSize; i++) {
-            meanX += sensorTriggerData.getXData().get(i);
-            meanY += sensorTriggerData.getYData().get(i);
-            meanZ += sensorTriggerData.getZData().get(i);
-        }
-
-        meanX = meanX/sensorDataSize;
-        meanY = meanY/sensorDataSize;
-        meanZ = meanZ/sensorDataSize;
-
-        //Log.d("MEANS", meanX + ", " + meanY + ", " + meanZ);
-
-        for (int i = 0; i < sensorDataSize; i++) {
-            diffMeanX += Math.pow(sensorTriggerData.getXData().get(i) - meanX, 2);
-            diffMeanY += Math.pow(sensorTriggerData.getYData().get(i) - meanY, 2);
-            diffMeanZ += Math.pow(sensorTriggerData.getZData().get(i) - meanZ, 2);
-        }
-
-        stdDeviations[0] = Math.sqrt(diffMeanX/(sensorDataSize - 1));
-        stdDeviations[1] = Math.sqrt(diffMeanX/(sensorDataSize - 1));
-        stdDeviations[2] = Math.sqrt(diffMeanX/(sensorDataSize - 1));
-
-        return stdDeviations;
-    }
-
     // Passes the data in AllGestureAccel to a JSONArray.
     public static void prepareJSONArray(List<float[]> allGestureAccel, JSONArray jsonAllAccel) {
 
