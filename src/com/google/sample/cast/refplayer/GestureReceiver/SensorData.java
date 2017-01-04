@@ -1,4 +1,4 @@
-package com.google.sample.cast.refplayer.MDDTW;
+package com.google.sample.cast.refplayer.GestureReceiver;
 import java.util.ArrayList;
 import java.util.List;
 

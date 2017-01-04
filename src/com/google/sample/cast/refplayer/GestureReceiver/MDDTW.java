@@ -1,10 +1,8 @@
-package com.example.mateus.testcastmdtw.triggerdetection;
+package com.google.sample.cast.refplayer.GestureReceiver;
 
 /**
  * Created by root on 7/7/16.
  */
-
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +14,7 @@ public class MDDTW {
 
     private double distancia = 0;
 
-    public MDDTW(SensorTriggerData caminho1, SensorTriggerData caminho2) {
+    public MDDTW(SensorData caminho1, SensorData caminho2) {
 
         int sizeCaminho1 = caminho1.getDataSize();
         List<Double> caminho1X;
@@ -28,7 +26,7 @@ public class MDDTW {
         List<Double> caminho2Y;
         List<Double> caminho2Z;
 
-        Log.d("SIZES", "" + sizeCaminho1 + " e " + sizeCaminho2);
+//        Log.d("SIZES", "" + sizeCaminho1 + " e " + sizeCaminho2);
 
         caminho1X = caminho1.getXData();
         caminho1Y = caminho1.getYData();

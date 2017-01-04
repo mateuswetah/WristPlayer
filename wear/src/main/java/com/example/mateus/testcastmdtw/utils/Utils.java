@@ -1,16 +1,8 @@
 package com.example.mateus.testcastmdtw.utils;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Handler;
-import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import android.widget.ImageButton;
-
-import com.example.mateus.testcastmdtw.triggerdetection.SensorTriggerData;
 
 import org.json.JSONArray;
 
@@ -21,26 +13,6 @@ import java.util.List;
  */
 
 public class Utils {
-
-    // Apply a low pass filter over a array of type SensorTriggerData
-    public static void lowPassFilter(SensorTriggerData sensorTriggerData) {
-
-        for (int i = 0; i < sensorTriggerData.Accel.size(); i++ ) {
-            if (i == 0 ) {
-                sensorTriggerData.Accel.get(i)[0] = (sensorTriggerData.Accel.get(i)[0] + sensorTriggerData.Accel.get(i+1)[0])/(float)3.0;
-                sensorTriggerData.Accel.get(i)[1] = (sensorTriggerData.Accel.get(i)[1] + sensorTriggerData.Accel.get(i+1)[1])/(float)3.0;
-                sensorTriggerData.Accel.get(i)[2] = (sensorTriggerData.Accel.get(i)[2] + sensorTriggerData.Accel.get(i+1)[2])/(float)3.0;
-            } else if (i == sensorTriggerData.Accel.size() - 1){
-                sensorTriggerData.Accel.get(i)[0] = (sensorTriggerData.Accel.get(i-1)[0] + sensorTriggerData.Accel.get(i)[0])/(float)3.0;
-                sensorTriggerData.Accel.get(i)[1] = (sensorTriggerData.Accel.get(i-1)[1] + sensorTriggerData.Accel.get(i)[1])/(float)3.0;
-                sensorTriggerData.Accel.get(i)[2] = (sensorTriggerData.Accel.get(i-1)[2] + sensorTriggerData.Accel.get(i)[2])/(float)3.0;
-            } else {
-                sensorTriggerData.Accel.get(i)[0] = (sensorTriggerData.Accel.get(i-1)[0] + sensorTriggerData.Accel.get(i)[0] + sensorTriggerData.Accel.get(i+1)[0])/(float)3.0;
-                sensorTriggerData.Accel.get(i)[1] = (sensorTriggerData.Accel.get(i-1)[1] + sensorTriggerData.Accel.get(i)[1] + sensorTriggerData.Accel.get(i+1)[1])/(float)3.0;
-                sensorTriggerData.Accel.get(i)[2] = (sensorTriggerData.Accel.get(i-1)[2] + sensorTriggerData.Accel.get(i)[2] + sensorTriggerData.Accel.get(i+1)[2])/(float)3.0;
-            }
-        }
-    }
 
     // Obtain separately the standard deviation of the axis X,Y and Z in a SensorGestureData
     public static Double[] getStandardDeviation(List<float[]> sensorGestureData){
@@ -74,23 +46,26 @@ public class Utils {
         }
 
         stdDeviations[0] = Math.sqrt(diffMeanX/(sensorDataSize - 1));
-        stdDeviations[1] = Math.sqrt(diffMeanX/(sensorDataSize - 1));
-        stdDeviations[2] = Math.sqrt(diffMeanX/(sensorDataSize - 1));
+        stdDeviations[1] = Math.sqrt(diffMeanY/(sensorDataSize - 1));
+        stdDeviations[2] = Math.sqrt(diffMeanZ/(sensorDataSize - 1));
 
         return stdDeviations;
     }
 
-    // Passes the data in AllGestureAccel to a JSONArray.
-    public static void prepareJSONArray(List<float[]> allGestureAccel, JSONArray jsonAllAccel) {
+    // Passes the data in allAccelData to a JSONArray.
+    public static JSONArray convertToJSONArray(List<float[]> allAccelData) {
 
-        for (int i = 0; i < allGestureAccel.size(); i++) {
-            JSONArray jsonAccel = new JSONArray();
-            jsonAccel.put(String.valueOf(allGestureAccel.get(i)[0]));
-            jsonAccel.put(String.valueOf(allGestureAccel.get(i)[0]));
-            jsonAccel.put(String.valueOf(allGestureAccel.get(i)[0]));
+        JSONArray jsonArray = new JSONArray();
+        for (int i = 0; i < allAccelData.size(); i++) {
+            JSONArray jsonArrayItem = new JSONArray();
+            jsonArrayItem.put(String.valueOf(allAccelData.get(i)[0]));
+            jsonArrayItem.put(String.valueOf(allAccelData.get(i)[1]));
+            jsonArrayItem.put(String.valueOf(allAccelData.get(i)[2]));
 
-            jsonAllAccel.put(jsonAccel);
+            jsonArray.put(jsonArrayItem);
         }
+
+        return jsonArray;
 
     }
 
@@ -108,17 +83,4 @@ public class Utils {
         }, 3000L);    // 5000 milliseconds(5 seconds) delay
     }
 
-    // Calls the default painel to request permission on writing files
-    public static void verifyStoragePermissions(Activity activity) {
-        // Check if we have write permission
-        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            Log.d("ACTIVITY", "NO PERMISSION GRANTED");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                activity.requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-            }
-        }
-    }
 }
